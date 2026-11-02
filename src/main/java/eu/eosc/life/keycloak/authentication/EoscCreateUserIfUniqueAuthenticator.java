@@ -130,18 +130,23 @@ public class EoscCreateUserIfUniqueAuthenticator extends IdpCreateUserIfUniqueAu
                 // Set duplicated user, so next authenticators can deal with it
                 context.getAuthenticationSession().setAuthNote(EXISTING_USER_INFO, duplication.serialize());
 
-                Response challengeResponse = context.form()
-                        .setError(Messages.FEDERATED_IDENTITY_EXISTS, duplication.getDuplicateAttributeName(), duplication.getDuplicateAttributeValue())
-                        .createErrorPage(Response.Status.CONFLICT);
-                context.challenge(challengeResponse);
-
                 if (context.getExecution().isRequired()) {
+                    Response challengeResponse = context.form()
+                            .setError(Messages.FEDERATED_IDENTITY_EXISTS, duplication.getDuplicateAttributeName(), duplication.getDuplicateAttributeValue())
+                            .createErrorPage(Response.Status.CONFLICT);
+                    context.challenge(challengeResponse);
                     context.getEvent()
                             .user(duplication.getExistingUserId())
                             .detail("existing_" + duplication.getDuplicateAttributeName(), duplication.getDuplicateAttributeValue())
                             .removeDetail(Details.AUTH_METHOD)
                             .removeDetail(Details.AUTH_TYPE)
                             .error(Errors.FEDERATED_IDENTITY_EXISTS);
+                } else {
+                    // ALTERNATIVE (the EOSC flow): hand the existing user to the
+                    // next step (idp-auto-link), like Keycloak's own
+                    // IdpCreateUserIfUniqueAuthenticator. Keycloak 4.5 went on to the
+                    // next alternative after this challenge; Keycloak 26 shows it.
+                    context.attempted();
                 }
             }
 

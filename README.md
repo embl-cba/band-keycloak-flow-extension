@@ -17,6 +17,10 @@ On a user's first IdP login it
 `provision_account.py` on the login node then makes the home directory and
 the Slurm account for the new LDAP user.
 
+2.0.1: an existing user (same username) is handed to the next ALTERNATIVE step
+(Automatically set existing user) instead of an "already exists" page, as
+Keycloak 4.5 effectively did.
+
 Changes from 1.0.0: Jakarta EE and the Keycloak 26 storage/user APIs; one LDAP
 connection per registration, closed afterwards (1.0.0 kept one connection for
 ever, so registrations failed once LDAP had dropped it). The "Link IDP Login"
